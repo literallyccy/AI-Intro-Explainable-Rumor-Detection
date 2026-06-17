@@ -1,0 +1,29 @@
+{
+  "model": "TF-IDF + Logistic Regression",
+  "explainability": "local feature contribution = TF-IDF value * Logistic Regression coefficient",
+  "llm_usage": "optional; LLM rewrites local evidence into natural language and does not change classification",
+  "text_column": "text",
+  "label_column": "label",
+  "label_meaning": {
+    "0": "非谣言",
+    "1": "谣言"
+  },
+  "tfidf": {
+    "analyzer": "char_wb",
+    "ngram_range": [
+      2,
+      5
+    ],
+    "max_features": 60000,
+    "min_df": 2,
+    "sublinear_tf": true,
+    "lowercase": false
+  },
+  "logistic_regression": {
+    "max_iter": 3000,
+    "C": 2.0,
+    "class_weight": "balanced",
+    "solver": "liblinear",
+    "random_state": 42
+  }
+}

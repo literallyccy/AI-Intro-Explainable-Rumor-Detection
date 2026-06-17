@@ -1,0 +1,28 @@
+{
+  "returncode": 0,
+  "stdout": "train.csv 列名： ['id', 'text', 'label', 'event']\nval.csv 列名： ['id', 'text', 'label', 'event']\n\nValidation Accuracy: 0.8329177057356608\n\nClassification Report:\n              precision    recall  f1-score   support\n\n           0     0.8245    0.8938    0.8577       226\n           1     0.8462    0.7543    0.7976       175\n\n    accuracy                         0.8329       401\n   macro avg     0.8353    0.8240    0.8277       401\nweighted avg     0.8339    0.8329    0.8315       401\n\n\n已保存模型、指标、预测结果、解释结果和全局特征权重。\n",
+  "stderr": "Spreadsheet runtime warmup failed during python startup\nTraceback (most recent call last):\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py\", line 26, in warm_spreadsheet_runtime_on_startup\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/spreadsheet_warmup.py\", line 785, in warm_spreadsheet_runtime\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/spreadsheet_warmup.py\", line 720, in _warm_feature_flows\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/spreadsheet_warmup.py\", line 704, in _warm_collaboration_flows\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/generated/interface/models.py\", line 30820, in hydrate_crdt_from_proto\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/rpc/remote.py\", line 749, in __call__\n  File \"/tmp/tmp.yTcnQsZYiA/artifact_tool_v2-2.8.4/artifact_tool/rpc/client.py\", line 150, in call\nartifact_tool.rpc.client.RemoteError: hydrateCrdtFromProto requires an empty collaborative document.\n",
+  "metrics": {
+    "model": "TF-IDF + Logistic Regression",
+    "accuracy": 0.8329177057356608,
+    "precision_label_1": 0.8461538461538461,
+    "recall_label_1": 0.7542857142857143,
+    "f1_label_1": 0.797583081570997,
+    "train_size": 2840,
+    "val_size": 401,
+    "confusion_matrix_labels": [
+      0,
+      1
+    ],
+    "confusion_matrix": [
+      [
+        202,
+        24
+      ],
+      [
+        43,
+        132
+      ]
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "model": "TF-IDF + Logistic Regression",
+  "accuracy": 0.8329177057356608,
+  "precision_label_1": 0.8461538461538461,
+  "recall_label_1": 0.7542857142857143,
+  "f1_label_1": 0.797583081570997,
+  "train_size": 2840,
+  "val_size": 401,
+  "confusion_matrix_labels": [
+    0,
+    1
+  ],
+  "confusion_matrix": [
+    [
+      202,
+      24
+    ],
+    [
+      43,
+      132
+    ]
+  ]
+}
