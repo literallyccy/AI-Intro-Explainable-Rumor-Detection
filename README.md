@@ -102,7 +102,7 @@ SJTU_API_BASE="接口 Base URL，例如 https://xxx/v1"
 SJTU_MODEL_NAME="模型名称"
 ```
 
-注意：`.env` 不要上传 GitHub。
+
 
 ## 7. 单条预测
 
