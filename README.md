@@ -1,59 +1,57 @@
-# 可解释的谣言检测
+# 可解释的谣言检测：本地模型 + 可选大模型辅助判断版
 
-系统实现：
-- 输入一条文本；
-- 输出二分类结果：`0 = 非谣言`，`1 = 谣言`；
-- 输出模型置信度；
-- 输出支持“谣言”和支持“非谣言”的关键词/片段；
-- 输出模型为什么最终更偏向某一类；
-- 可选调用学校大模型接口，将本地证据改写为更自然的判断依据；
-- 在 `val.csv` 上计算准确率；
-- 保存验证集预测结果和逐条解释结果。
+本项目基于原仓库 `literallyccy/AI-Intro-Explainable-Rumor-Detection` 修改而来。原版本中，大模型只用于把本地证据改写成自然语言解释，不参与最终分类。本版本新增 **大模型辅助判断模式**，用户可以选择是否让大模型参与最终标签融合。
 
-## 1. 方案设计
+## 1. 系统功能
 
-本项目采用：
+系统输入一条文本，输出：
+
+- 二分类结果：`0 = 非谣言`，`1 = 谣言`；
+- 置信度；
+- 本地模型支持“谣言”和“非谣言”的词级证据；
+- 本地模型解释；
+- 可选大模型解释；
+- 可选大模型辅助判断结果；
+- 本地模型与大模型融合后的最终判断。
+
+## 2. 模型设计
+
+默认情况下，系统使用本地模型进行判断。本地模型采用：
 
 ```text
-本地分类模型 + 特征贡献解释 + 可选大模型解释生成
+词级 TF-IDF + 字符级 TF-IDF + LinearSVC 硬投票集成
 ```
 
 其中：
 
+- 词级 TF-IDF 用于生成可读解释；
+- 字符级 TF-IDF 用于提高短文本、拼写变化和未知词情况下的泛化能力；
+- 多个 LinearSVC 进行硬投票，提高验证集稳定性；
+- 保守辟谣规则用于修正明显的“官方辟谣/声明为假/不要传播谣言”文本。
+
+新增的大模型辅助判断模式采用：
+
 ```text
-本地分类模型：TF-IDF + Logistic Regression
-本地解释模块：TF-IDF 值 × 逻辑回归权重
-大模型接口：只负责把本地证据改写成自然语言，不参与最终分类
+本地模型判断 + 本地证据 + 大模型辅助判断 + 融合策略
 ```
 
-逻辑回归二分类的决策函数为：
+大模型不是默认启用的。只有用户显式加入 `--use-llm-judge` 时，大模型才参与最终判断。
+
+## 3. 项目结构
 
 ```text
-score = intercept + Σ(TF-IDF_i × weight_i)
-```
-
-判断规则：
-
-```text
-贡献值 > 0：该词或片段支持 1 = 谣言
-贡献值 < 0：该词或片段支持 0 = 非谣言
-score > 0：模型最终判断为谣言
-score < 0：模型最终判断为非谣言
-```
-
-## 2. 项目结构
-
-```text
-rumor_detection_final_with_llm_report/
+AI-Intro-Explainable-Rumor-Detection/
 ├── README.md
 ├── requirements.txt
 ├── .env.example
-├── report.pdf
+├── LLM_JUDGE_REPORT.md
 ├── data/
 │   ├── train.csv
 │   └── val.csv
 ├── src/
 │   ├── text_utils.py
+│   ├── rules.py
+│   ├── model_utils.py
 │   ├── explain.py
 │   ├── llm_explain.py
 │   ├── train.py
@@ -64,90 +62,142 @@ rumor_detection_final_with_llm_report/
 └── results/
 ```
 
-## 3. 安装依赖
-
-Mac / Linux：
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-Windows：
+## 4. 安装依赖
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-## 4. 训练模型
+## 5. 训练和评估本地模型
 
 ```bash
-python3 src/train.py
+python src/train.py
+python src/evaluate.py
 ```
 
 训练后生成：
-- `models/tfidf_vectorizer.pkl`
-- `models/logistic_regression.pkl`
-- `results/metrics.json`
-- `results/val_predictions.csv`
-- `results/val_explanations.csv`
-- `results/global_feature_weights.csv`
 
-## 5. 查看评估结果
-
-```bash
-python3 src/evaluate.py
+```text
+models/rumor_ensemble.pkl
+models/model_info.json
+results/metrics.json
+results/val_predictions.csv
+results/val_explanations.csv
+results/global_feature_weights.csv
 ```
 
-或：
+## 6. 配置大模型接口
 
-```bash
-cat results/metrics.json
-```
-
-## 6. 单条预测
-
-不调用大模型接口：
-
-```bash
-python3 src/predict.py "这里输入一条待检测文本"
-```
-
-调用大模型接口润色解释：
-
-```bash
-python3 src/predict.py "这里输入一条待检测文本" --use-llm
-```
-
-如果接口未配置或调用失败，程序会自动退回本地解释。
-
-## 7. 大模型接口配置
-
-本项目不在代码中硬编码 API Key。使用 `.env.example` 作为模板，配置环境变量：
-
-```bash
-export SJTU_API_KEY="你的API Key"
-export SJTU_API_BASE="接口Base URL"
-export SJTU_MODEL_NAME="模型名称"
-```
-
-也可以复制：
+复制 `.env.example` 为 `.env`：
 
 ```bash
 cp .env.example .env
 ```
 
-然后填写 `.env`。
-
-大模型只根据本地模型给出的标签、置信度、支持谣言/非谣言的特征和决策分数生成自然语言解释，不改变模型分类结果。
-
-## 8. 批量预测
+填写：
 
 ```bash
-python3 src/batch_predict.py --input data/val.csv --output results/batch_predictions.csv --text-col text
+SJTU_API_KEY="你的 API Key"
+SJTU_API_BASE="接口 Base URL，例如 https://xxx/v1"
+SJTU_MODEL_NAME="模型名称"
 ```
 
-可选使用大模型解释：
+注意：`.env` 不要上传 GitHub。
+
+## 7. 单条预测
+
+### 7.1 只使用本地模型
 
 ```bash
-python3 src/batch_predict.py --input data/val.csv --output results/batch_predictions_llm.csv --text-col text --use-llm
+python src/predict.py "Police confirmed that the viral post about contaminated drinking water was false and asked the public not to spread rumors."
+```
+
+### 7.2 只让大模型润色解释，不改变分类
+
+```bash
+python src/predict.py "A viral message claims that drinking salt water can cure all infections overnight." --use-llm
+```
+
+### 7.3 让大模型参与辅助判断
+
+```bash
+python src/predict.py "A viral message claims that drinking salt water can cure all infections overnight." --use-llm-judge
+```
+
+### 7.4 大模型既参与判断，也生成自然语言解释
+
+```bash
+python src/predict.py "A viral message claims that drinking salt water can cure all infections overnight." --use-llm-judge --use-llm
+```
+
+## 8. 融合策略
+
+本项目提供三种融合策略：
+
+### conservative：默认策略
+
+```bash
+python src/predict.py "文本" --use-llm-judge --llm-fusion conservative
+```
+
+本地模型和大模型一致时采用一致结果；二者不一致时，只有在大模型置信度较高且本地模型不是极高置信时，才允许大模型覆盖本地模型。
+
+### override：大模型优先策略
+
+```bash
+python src/predict.py "文本" --use-llm-judge --llm-fusion override
+```
+
+只要大模型置信度达到阈值，就采用大模型判断。
+
+### agree：一致才增强策略
+
+```bash
+python src/predict.py "文本" --use-llm-judge --llm-fusion agree
+```
+
+只有本地模型和大模型判断一致时，才提升结果可信度；不一致时保留本地模型结果。
+
+可通过 `--llm-threshold` 设置大模型最低置信度阈值：
+
+```bash
+python src/predict.py "文本" --use-llm-judge --llm-threshold 0.8
+```
+
+## 9. 批量预测
+
+只使用本地模型：
+
+```bash
+python src/batch_predict.py --input data/val.csv --output results/batch_predictions.csv --text-col text
+```
+
+批量启用大模型辅助判断：
+
+```bash
+python src/batch_predict.py --input data/val.csv --output results/batch_predictions_llm_judge.csv --text-col text --use-llm-judge
+```
+
+注意：批量调用大模型会消耗接口额度，并且速度明显慢于本地模型。
+
+## 10. 输出字段说明
+
+启用大模型辅助判断后，输出中会新增：
+
+```text
+local_label              本地模型标签
+local_confidence         本地模型置信度
+llm_judge_enabled        是否启用大模型辅助判断
+llm_judge_result         大模型判断结果
+llm_fusion_strategy      融合策略
+fusion_reason            融合原因
+final_source             最终结果来源
+```
+
+最终用于展示的标签仍然是：
+
+```text
+label
+label_name
+confidence
 ```

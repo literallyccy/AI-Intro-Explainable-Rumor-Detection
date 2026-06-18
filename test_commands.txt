@@ -1,0 +1,21 @@
+# 本地模型
+python src/predict.py "Police confirmed that the viral post about contaminated drinking water was false and asked the public not to spread rumors."
+python src/predict.py "A viral message claims that drinking salt water can cure all infections overnight."
+
+# 大模型只润色解释
+python src/predict.py "A viral message claims that drinking salt water can cure all infections overnight." --use-llm
+
+# 大模型参与判断
+python src/predict.py "Police confirmed that the viral post about contaminated drinking water was false and asked the public not to spread rumors." --use-llm-judge
+python src/predict.py "A viral message claims that drinking salt water can cure all infections overnight." --use-llm-judge
+
+# 大模型参与判断并生成解释
+python src/predict.py "Police confirmed that the viral post about contaminated drinking water was false and asked the public not to spread rumors." --use-llm-judge --use-llm
+
+# 不同融合策略
+python src/predict.py "The viral post was later confirmed to be fake by local authorities." --use-llm-judge --llm-fusion conservative
+python src/predict.py "The viral post was later confirmed to be fake by local authorities." --use-llm-judge --llm-fusion override
+python src/predict.py "The viral post was later confirmed to be fake by local authorities." --use-llm-judge --llm-fusion agree
+
+# 批量预测，注意会消耗接口额度
+python src/batch_predict.py --input data/val.csv --output results/batch_predictions_llm_judge.csv --text-col text --use-llm-judge

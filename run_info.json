@@ -25,5 +25,26 @@
       ]
     ]
   },
-  "note": "Modified on top of https://github.com/literallyccy/AI-Intro-Explainable-Rumor-Detection project structure. train.csv is used for training and val.csv is used only for validation."
+  "note": "Modified on top of https://github.com/literallyccy/AI-Intro-Explainable-Rumor-Detection project structure. train.csv is used for training and val.csv is used only for validation.",
+  "llm_judge_version": {
+    "description": "新增 --use-llm-judge，让大模型作为可选辅助判别器参与最终判断；默认仍使用本地模型。",
+    "changed_files": [
+      "src/llm_explain.py",
+      "src/predict.py",
+      "src/batch_predict.py",
+      "README.md",
+      ".env.example",
+      "LLM_JUDGE_REPORT.md"
+    ],
+    "modes": [
+      "local only",
+      "llm explanation only (--use-llm)",
+      "llm assisted judgment (--use-llm-judge)"
+    ],
+    "fusion_strategies": [
+      "conservative",
+      "override",
+      "agree"
+    ]
+  }
 }
