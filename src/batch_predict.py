@@ -1,5 +1,7 @@
 import argparse
+
 import pandas as pd
+
 from predict import predict
 
 
@@ -9,6 +11,7 @@ def main():
     parser.add_argument("--output", default="results/batch_predictions.csv", help="输出 CSV 文件路径")
     parser.add_argument("--text-col", default="text", help="文本列名")
     parser.add_argument("--use-llm", action="store_true", help="使用大模型接口生成解释；失败时退回本地解释")
+    parser.add_argument("--no-rule", action="store_true", help="关闭单条预测的保守辟谣规则")
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
@@ -17,7 +20,7 @@ def main():
 
     rows = []
     for i, row in df.iterrows():
-        result = predict(str(row[args.text_col]), use_llm=args.use_llm)
+        result = predict(str(row[args.text_col]), use_llm=args.use_llm, use_rule=not args.no_rule)
         rows.append({
             "index": i,
             "text": row[args.text_col],
@@ -28,9 +31,8 @@ def main():
             "support_rumor_features": "、".join(result["support_rumor_features"]),
             "support_non_rumor_features": "、".join(result["support_non_rumor_features"]),
             "explanation": result["explanation"],
-            "explanation_source": result["explanation_source"]
+            "explanation_source": result["explanation_source"],
         })
-
     pd.DataFrame(rows).to_csv(args.output, index=False, encoding="utf-8-sig")
     print(f"已保存批量预测结果：{args.output}")
 

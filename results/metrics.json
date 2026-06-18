@@ -1,9 +1,10 @@
 {
-  "model": "TF-IDF + Logistic Regression",
-  "accuracy": 0.8329177057356608,
-  "precision_label_1": 0.8461538461538461,
-  "recall_label_1": 0.7542857142857143,
-  "f1_label_1": 0.797583081570997,
+  "model": "Word+Char TF-IDF LinearSVC Ensemble",
+  "accuracy": 0.8778054862842892,
+  "macro_f1": 0.8737348747244839,
+  "precision_label_1": 0.9090909090909091,
+  "recall_label_1": 0.8,
+  "f1_label_1": 0.851063829787234,
   "train_size": 2840,
   "val_size": 401,
   "confusion_matrix_labels": [
@@ -12,12 +13,12 @@
   ],
   "confusion_matrix": [
     [
-      202,
-      24
+      212,
+      14
     ],
     [
-      43,
-      132
+      35,
+      140
     ]
   ]
 }

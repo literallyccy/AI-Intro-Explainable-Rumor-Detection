@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+
 import pandas as pd
 
 
@@ -7,9 +8,8 @@ def main():
     metrics_path = Path("results/metrics.json")
     explanations_path = Path("results/val_explanations.csv")
     weights_path = Path("results/global_feature_weights.csv")
-
     if not metrics_path.exists():
-        raise FileNotFoundError("找不到 results/metrics.json，请先运行 python3 src/train.py")
+        raise FileNotFoundError("找不到 results/metrics.json，请先运行 python src/train.py")
 
     metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
     print("模型评估指标：")
